@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import pool from "./db/connection.js";
+import { userRouter } from "./routes/user.js";
 
 dotenv.config({ quiet: true });
 
@@ -10,6 +11,8 @@ const PORT = process.env.PORT ?? 3000;
 
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/user", userRouter);
 
 try {
   await pool.getConnection();
