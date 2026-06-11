@@ -1,17 +1,14 @@
 import type { Request, Response } from "express";
 import pool from "../../db/connection.js";
-import type { RowDataPacket } from "mysql2";
 import * as argon2 from "argon2";
-
+import type { RowDataPacket } from "mysql2";
 interface RegisterBody {
   email: string;
   password: string;
 }
 
-interface UserRow extends RowDataPacket {
-  id: number;
+interface ExistingUserRows extends RowDataPacket {
   email: string;
-  created_at: Date;
 }
 
 export default async function register(
@@ -29,33 +26,25 @@ export default async function register(
     return res.status(400).json({ error: "Email and password are required." });
   }
 
-  const [existingUser] = await pool.query(
+  const [existingUser] = await pool.query<ExistingUserRows[]>(
     "SELECT email FROM users WHERE email = ?",
     [email],
   );
 
-  if (Array.isArray(existingUser) && existingUser.length > 0) {
+  if (existingUser.length > 0) {
     return res
       .status(400)
       .json({ error: "A user with that email already exists." });
   }
 
-  // TODO: Add a salt to this.
-  const password_hash = await argon2.hash(password);
-
-  console.log(password_hash);
+  const password_hash = await argon2.hash(password, {
+    secret: Buffer.from(process.env.PEPPER!),
+  });
 
   await pool.query("INSERT INTO users (email, password_hash) VALUES (?, ?)", [
     email,
     password_hash,
   ]);
 
-  const [user] = await pool.query<UserRow[]>(
-    "SELECT email, id, created_at FROM users WHERE email = ?",
-    [email],
-  );
-
-  console.log(user);
-
-  return res.send({ user });
+  return res.status(201).send({ message: "User successfully created." });
 }
