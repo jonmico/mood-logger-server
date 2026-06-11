@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import pool from "../../db/connection.js";
 import type { RowDataPacket } from "mysql2";
+import * as argon2 from "argon2";
 
 interface RegisterBody {
   email: string;
@@ -17,7 +18,6 @@ export default async function register(
   req: Request<unknown, unknown, RegisterBody>,
   res: Response,
 ) {
-  // TODO: Write register controller.
   const { email, password } = req.body;
 
   if (
@@ -40,9 +40,14 @@ export default async function register(
       .json({ error: "A user with that email already exists." });
   }
 
+  // TODO: Add a salt to this.
+  const password_hash = await argon2.hash(password);
+
+  console.log(password_hash);
+
   await pool.query("INSERT INTO users (email, password_hash) VALUES (?, ?)", [
     email,
-    password,
+    password_hash,
   ]);
 
   const [user] = await pool.query<UserRow[]>(
