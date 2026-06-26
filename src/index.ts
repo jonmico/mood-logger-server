@@ -3,14 +3,17 @@ import cors from "cors";
 import dotenv from "dotenv";
 import pool from "./db/connection.js";
 import { userRouter } from "./routes/user.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config({ quiet: true });
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
+const COOKIE_SECRET = process.env.COOKIE_SECRET;
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser(COOKIE_SECRET));
 
 app.use("/api/user", userRouter);
 

@@ -2,12 +2,18 @@ import type { Request, Response } from "express";
 import pool from "../../db/connection.js";
 import * as argon2 from "argon2";
 import type { RowDataPacket } from "mysql2";
+import signToken from "../../utils/signToken.js";
 interface RegisterBody {
   email: string;
   password: string;
 }
 
 interface ExistingUserRows extends RowDataPacket {
+  email: string;
+}
+
+interface UserRows extends RowDataPacket {
+  id: string;
   email: string;
 }
 
@@ -46,5 +52,21 @@ export default async function register(
     password_hash,
   ]);
 
-  return res.status(201).send({ message: "User successfully created." });
+  const [user] = await pool.query<UserRows[]>(
+    "SELECT id, email FROM users WHERE email = ?",
+    [email],
+  );
+
+  if (!user[0]) {
+    return res
+      .status(400)
+      .send({ message: "Something has gone terribly wrong." });
+  }
+
+  const jwt = await signToken(user[0].id);
+
+  return res
+    .status(201)
+    .cookie("jwt", jwt, { signed: true, httpOnly: true })
+    .send({ message: "User successfully created." });
 }
