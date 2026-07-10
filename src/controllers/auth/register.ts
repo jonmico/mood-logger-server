@@ -18,7 +18,7 @@ interface UserRows extends RowDataPacket {
   email: string;
 }
 
-export default async function register(
+export async function register(
   req: Request<unknown, unknown, RegisterBody>,
   res: Response,
 ) {

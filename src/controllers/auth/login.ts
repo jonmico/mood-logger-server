@@ -16,7 +16,7 @@ interface ExistingUserRows extends RowDataPacket {
   id: string;
 }
 
-export default async function login(
+export async function login(
   req: Request<unknown, unknown, RequestBody>,
   res: Response,
 ) {
