@@ -3,6 +3,7 @@ import pool from "../../db/connection.js";
 import type { RowDataPacket } from "mysql2";
 import * as argon2 from "argon2";
 import signToken from "../../utils/signToken.js";
+import { cookieOptions } from "../../utils/cookieOptions.js";
 
 interface RequestBody {
   email: string;
@@ -43,6 +44,6 @@ export default async function login(
   const jwt = await signToken(existingUser.id);
 
   return res
-    .cookie("jwt", jwt, { signed: true, httpOnly: true })
+    .cookie("jwt", jwt, cookieOptions)
     .send({ message: "Successfully logged in." });
 }

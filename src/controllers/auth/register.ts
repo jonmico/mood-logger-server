@@ -3,6 +3,7 @@ import pool from "../../db/connection.js";
 import * as argon2 from "argon2";
 import type { RowDataPacket } from "mysql2";
 import signToken from "../../utils/signToken.js";
+import { cookieOptions } from "../../utils/cookieOptions.js";
 interface RegisterBody {
   email: string;
   password: string;
@@ -67,6 +68,6 @@ export default async function register(
 
   return res
     .status(201)
-    .cookie("jwt", jwt, { signed: true, httpOnly: true })
+    .cookie("jwt", jwt, cookieOptions)
     .send({ message: "User successfully created." });
 }
