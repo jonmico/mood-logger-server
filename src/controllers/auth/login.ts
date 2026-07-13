@@ -45,5 +45,5 @@ export async function login(
 
   return res
     .cookie("jwt", jwt, cookieOptions)
-    .send({ message: "Successfully logged in." });
+    .send({ userId: existingUser.id });
 }
