@@ -61,7 +61,7 @@ export async function register(
   if (!user[0]) {
     return res
       .status(400)
-      .send({ message: "Something has gone terribly wrong." });
+      .send({ error: "Something has gone terribly wrong." });
   }
 
   const jwt = await signToken(user[0].id);
@@ -69,5 +69,5 @@ export async function register(
   return res
     .status(201)
     .cookie("jwt", jwt, cookieOptions)
-    .send({ message: "User successfully created." });
+    .send({ userId: user[0].id });
 }
