@@ -38,7 +38,7 @@ export async function login(
   });
 
   if (!result) {
-    return res.status(403).send({ message: "Incorrect password." });
+    return res.status(403).send({ message: "Incorrect email or password." });
   }
 
   const jwt = await signToken(existingUser.id);
