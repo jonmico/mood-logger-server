@@ -7,6 +7,7 @@ import type { Request, Response } from "express";
 
 interface RegisterBody {
   email: string;
+  firstName: string;
   password: string;
 }
 
@@ -17,13 +18,14 @@ interface ExistingUserRows extends RowDataPacket {
 interface UserRows extends RowDataPacket {
   id: string;
   email: string;
+  first_name: string;
 }
 
 export async function register(
   req: Request<unknown, unknown, RegisterBody>,
   res: Response,
 ) {
-  const { email, password } = req.body;
+  const { email, firstName, password } = req.body;
 
   if (
     typeof email !== "string" ||
@@ -49,13 +51,13 @@ export async function register(
     secret: Buffer.from(process.env.PEPPER!),
   });
 
-  await pool.query("INSERT INTO users (email, password_hash) VALUES (?, ?)", [
-    email,
-    password_hash,
-  ]);
+  await pool.query(
+    "INSERT INTO users (email, first_name, password_hash) VALUES (?,?, ?)",
+    [email, firstName, password_hash],
+  );
 
   const [user] = await pool.query<UserRows[]>(
-    "SELECT id, email FROM users WHERE email = ?",
+    "SELECT id, email, first_name FROM users WHERE email = ?",
     [email],
   );
 
@@ -70,5 +72,5 @@ export async function register(
   return res
     .status(201)
     .cookie("jwt", jwt, cookieOptions)
-    .send({ userId: user[0].id });
+    .send({ userId: user[0].id, firstName: user[0].first_name });
 }
