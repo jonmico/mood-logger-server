@@ -1,9 +1,10 @@
-import type { Request, Response } from "express";
 import pool from "../../db/connection.js";
 import * as argon2 from "argon2";
 import type { RowDataPacket } from "mysql2";
 import signToken from "../../utils/signToken.js";
 import { cookieOptions } from "../../utils/cookieOptions.js";
+import type { Request, Response } from "express";
+
 interface RegisterBody {
   email: string;
   password: string;
