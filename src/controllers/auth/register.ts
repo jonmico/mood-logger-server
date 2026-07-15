@@ -56,6 +56,7 @@ export async function register(
     [email, firstName, password_hash],
   );
 
+  // TODO: Refactor this to look more like login.ts.
   const [user] = await pool.query<UserRows[]>(
     "SELECT id, email, first_name FROM users WHERE email = ?",
     [email],

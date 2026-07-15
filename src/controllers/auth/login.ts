@@ -12,6 +12,7 @@ interface RequestBody {
 
 interface ExistingUserRows extends RowDataPacket {
   email: string;
+  first_name: string;
   password_hash: string;
   id: string;
 }
@@ -23,14 +24,14 @@ export async function login(
   const { email, password } = req.body;
 
   const [existingUserRows] = await pool.query<ExistingUserRows[]>(
-    "SELECT email, password_hash, id FROM users WHERE email = ?",
+    "SELECT email, first_name, password_hash, id FROM users WHERE email = ?",
     [email],
   );
 
   const existingUser = existingUserRows[0];
 
   if (!existingUser) {
-    return res.status(404).send({ message: "User does not exist." });
+    return res.status(404).send({ error: "User does not exist." });
   }
 
   const result = await argon2.verify(existingUser.password_hash, password, {
@@ -38,12 +39,12 @@ export async function login(
   });
 
   if (!result) {
-    return res.status(403).send({ message: "Incorrect email or password." });
+    return res.status(403).send({ error: "Incorrect email or password." });
   }
 
   const jwt = await signToken(existingUser.id);
 
   return res
     .cookie("jwt", jwt, cookieOptions)
-    .send({ userId: existingUser.id });
+    .send({ userId: existingUser.id, firstName: existingUser.first_name });
 }

@@ -10,7 +10,7 @@ export default async function authenticate(
   const { jwt } = req.signedCookies;
 
   if (!jwt) {
-    return res.status(401).send({ message: "Not authenticated." });
+    return res.status(401).send({ error: "Not authenticated." });
   }
 
   try {
@@ -21,15 +21,15 @@ export default async function authenticate(
     return next();
   } catch (err) {
     if (err instanceof jose.errors.JWTExpired) {
-      return res.status(401).send({ message: "Token expired." });
+      return res.status(401).send({ error: "Token expired." });
     } else if (err instanceof jose.errors.JWSInvalid) {
-      return res.status(401).send({ message: "Token is malformed" });
+      return res.status(401).send({ error: "Token is malformed" });
     } else if (err instanceof jose.errors.JWSSignatureVerificationFailed) {
-      return res.status(401).send({ message: "Token is tampered." });
+      return res.status(401).send({ error: "Token is tampered." });
     } else {
       return res
         .status(500)
-        .send({ message: "Something went wrong verifying the token." });
+        .send({ error: "Something went wrong verifying the token." });
     }
   }
 }
