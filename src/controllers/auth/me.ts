@@ -8,7 +8,7 @@ interface MeRows extends RowDataPacket {
 
 export async function me(req: Request, res: Response) {
   const [userRow] = await pool.query<MeRows[]>(
-    "SELECT first_name WHERE id = ?",
+    "SELECT first_name FROM users WHERE id = ?",
     [req.userId],
   );
 
