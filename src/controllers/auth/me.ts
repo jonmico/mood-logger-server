@@ -4,11 +4,12 @@ import type { RowDataPacket } from "mysql2";
 
 interface MeRows extends RowDataPacket {
   first_name: string;
+  email: string;
 }
 
 export async function me(req: Request, res: Response) {
   const [userRow] = await pool.query<MeRows[]>(
-    "SELECT first_name FROM users WHERE id = ?",
+    "SELECT first_name, email FROM users WHERE id = ?",
     [req.userId],
   );
 
@@ -18,5 +19,9 @@ export async function me(req: Request, res: Response) {
     return res.status(500).send({ error: "Error finding user." });
   }
 
-  return res.send({ userId: req.userId, firstName: user.first_name });
+  return res.send({
+    userId: req.userId,
+    firstName: user.first_name,
+    email: user.email,
+  });
 }
