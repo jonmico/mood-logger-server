@@ -12,7 +12,7 @@ export async function createMood(
   req: Request<unknown, unknown, RequestBody>,
   res: Response,
 ) {
-  const { mood, text, userId } = req.body;
+  const { mood, text } = req.body;
 
   if (!mood) {
     return res.status(400).json({ error: "A mood rating is required." });
@@ -26,7 +26,7 @@ export async function createMood(
 
   const [result] = await pool.query<ResultSetHeader>(
     "INSERT INTO moods (mood, notes, user_id) VALUES (?, ?, ?)",
-    [mood, text, userId],
+    [mood, text, req.userId],
   );
 
   if (result.affectedRows !== 1) {
